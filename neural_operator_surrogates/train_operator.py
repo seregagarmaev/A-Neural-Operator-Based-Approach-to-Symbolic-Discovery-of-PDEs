@@ -1,15 +1,21 @@
+import gc
+
 import numpy as np
 import torch
 
-from config import ExperimentConfig
+from config import ExperimentConfig, get_experiments
 from neural_operators import build_neural_operator
 from operator_datasets import build_operator_dataset
 from trainer import evaluate, train_model
 from visualization import save_prediction_figures, save_training_curves
 
 
-def main() -> None:
-    config = ExperimentConfig()
+def run_experiment(config: ExperimentConfig) -> None:
+    print("=" * 80)
+    print(f"Running experiment: {config.experiment_name}")
+    print(f"Task: {config.task.name}")
+    print(f"Model: {config.model.name}")
+    print("=" * 80)
 
     torch.manual_seed(config.training.seed)
     np.random.seed(config.training.seed)
@@ -78,6 +84,25 @@ def main() -> None:
     )
 
     print(f"Figures saved to: {experiment_figures_dir}")
+
+    del model
+    del train_loader
+    del val_loader
+    del test_loader
+    del dataset_info
+    del checkpoint
+
+    gc.collect()
+
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+
+
+def main() -> None:
+    experiments = get_experiments()
+
+    for config in experiments:
+        run_experiment(config)
 
 
 if __name__ == "__main__":

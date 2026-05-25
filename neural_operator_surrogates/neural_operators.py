@@ -42,7 +42,7 @@ def build_hypernos_cno(
         problem_dim=model_config.problem_dim,
         in_dim=model_config.in_dim,
         out_dim=model_config.out_dim,
-        size=config.task.n_grid,
+        size=config.task.nx,
         N_layers=model_config.n_layers,
         N_res=model_config.n_res,
         N_res_neck=model_config.n_res_neck,

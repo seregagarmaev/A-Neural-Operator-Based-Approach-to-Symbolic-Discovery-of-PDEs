@@ -8,6 +8,45 @@ from torch.utils.data import DataLoader
 from config import ExperimentConfig
 
 
+def get_input_label(config: ExperimentConfig) -> str:
+    if config.task.name == "poisson_gradient":
+        return r"$q(x)$"
+
+    return r"$u(x)$"
+
+
+def get_output_label(config: ExperimentConfig) -> str:
+    if config.task.name == "fractional_laplacian":
+        return r"$(-\Delta)^s u(x)$"
+
+    if config.task.name == "poisson_gradient":
+        return r"$-\phi_x(x)$"
+
+    if config.task.name == "first_derivative":
+        return r"$u_x(x)$"
+
+    if config.task.name == "second_derivative":
+        return r"$u_{xx}(x)$"
+
+    return r"$\mathcal{N}[u](x)$"
+
+
+def get_output_title(config: ExperimentConfig) -> str:
+    if config.task.name == "fractional_laplacian":
+        return "Fractional Laplacian"
+
+    if config.task.name == "poisson_gradient":
+        return "Poisson-gradient operator"
+
+    if config.task.name == "first_derivative":
+        return "First derivative"
+
+    if config.task.name == "second_derivative":
+        return "Second derivative"
+
+    return "Operator output"
+
+
 def save_training_curves(
     history: dict,
     figures_dir: Path,
@@ -55,6 +94,10 @@ def save_prediction_figures(
     y_std = dataset_info["y_std"]
     model_label = config.model.name.upper()
 
+    input_label = get_input_label(config)
+    output_label = get_output_label(config)
+    output_title = get_output_title(config)
+
     xb, yb = next(iter(test_loader))
 
     xb = xb.to(device, non_blocking=True)
@@ -76,13 +119,13 @@ def save_prediction_figures(
         fig, axes = plt.subplots(3, 1, figsize=(8, 8), sharex=True)
 
         axes[0].plot(x, xb[i, :, 0])
-        axes[0].set_ylabel(r"$u(x)$")
+        axes[0].set_ylabel(input_label)
         axes[0].set_title("Input field")
 
         axes[1].plot(x, y_true[i, :, 0], label="true")
         axes[1].plot(x, y_pred[i, :, 0], linestyle="--", label=model_label)
-        axes[1].set_ylabel(r"$(-\Delta)^s u(x)$")
-        axes[1].set_title("Fractional Laplacian")
+        axes[1].set_ylabel(output_label)
+        axes[1].set_title(output_title)
         axes[1].legend()
 
         axes[2].plot(x, y_pred[i, :, 0] - y_true[i, :, 0])

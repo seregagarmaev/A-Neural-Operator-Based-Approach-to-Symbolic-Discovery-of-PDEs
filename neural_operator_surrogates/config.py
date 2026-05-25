@@ -4,8 +4,8 @@ from pathlib import Path
 
 @dataclass
 class PathsConfig:
-    models_dir: Path = Path("neural_operator_surrogates/models")
-    figures_dir: Path = Path("neural_operator_surrogates/figures")
+    models_dir: Path = Path("models")
+    figures_dir: Path = Path("figures")
 
 
 @dataclass
@@ -17,21 +17,24 @@ class SplitConfig:
 
 
 @dataclass
-class FractionalLaplacianTaskConfig:
+class OperatorTaskConfig:
     name: str = "fractional_laplacian"
 
-    n_grid: int = 256
-    x_min: float = -1.0
-    x_max: float = 1.0
+    # Periodic spatial grid
+    L: float = 2.0 * 3.141592653589793
+    nx: int = 256
 
+    # Fractional Laplacian parameter
     frac_power_s: float = 0.7
 
-    n_gaussians_min: int = 2
-    n_gaussians_max: int = 5
-    amplitude_min: float = -1.0
-    amplitude_max: float = 1.0
-    sigma_min: float = 0.03
-    sigma_max: float = 0.18
+    # Gaussian-mixture input generation
+    n_gaussians_min: int = 20
+    n_gaussians_max: int = 30
+    sigma_min_fraction: float = 0.04
+    sigma_max_fraction: float = 0.15
+
+    # Used only for the Poisson-gradient density input q = 1 + amplitude * perturbation
+    poisson_density_perturbation_amplitude: float = 0.05
 
 
 @dataclass
@@ -74,7 +77,7 @@ class CNOConfig:
 class TrainingConfig:
     device: str = "cuda:0"
 
-    max_epochs: int = 1000
+    max_epochs: int = 10 #1000
     learning_rate: float = 1e-3
     weight_decay: float = 1e-6
 
@@ -94,17 +97,42 @@ class VisualizationConfig:
 
 @dataclass
 class ExperimentConfig:
-    experiment_name: str = "cno_fractional_laplacian"
+    experiment_name: str
 
     paths: PathsConfig = field(default_factory=PathsConfig)
     split: SplitConfig = field(default_factory=SplitConfig)
-    task: FractionalLaplacianTaskConfig = field(default_factory=FractionalLaplacianTaskConfig)
-
-    model: CNOConfig = field(default_factory=CNOConfig)
-
-    # To train FNO instead, change the two lines above to:
-    # experiment_name: str = "fno_fractional_laplacian"
-    # model: FNOConfig = field(default_factory=FNOConfig)
-
+    task: OperatorTaskConfig = field(default_factory=OperatorTaskConfig)
+    model: FNOConfig | CNOConfig = field(default_factory=FNOConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     visualization: VisualizationConfig = field(default_factory=VisualizationConfig)
+
+
+def make_experiments_for_task(task_name: str) -> list[ExperimentConfig]:
+    return [
+        ExperimentConfig(
+            experiment_name=f"fno_{task_name}",
+            task=OperatorTaskConfig(name=task_name),
+            model=FNOConfig(),
+        ),
+        ExperimentConfig(
+            experiment_name=f"cno_{task_name}",
+            task=OperatorTaskConfig(name=task_name),
+            model=CNOConfig(),
+        ),
+    ]
+
+
+def get_experiments() -> list[ExperimentConfig]:
+    task_names = [
+        "fractional_laplacian",
+        "poisson_gradient",
+        "first_derivative",
+        "second_derivative",
+    ]
+
+    experiments = []
+
+    for task_name in task_names:
+        experiments.extend(make_experiments_for_task(task_name))
+
+    return experiments
