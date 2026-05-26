@@ -38,11 +38,13 @@ def build_hypernos_cno(
 ) -> CNO:
     model_config = config.model
 
+    size = config.task.nt if config.task.name == "hereditary_integral" else config.task.nx
+
     model = CNO(
         problem_dim=model_config.problem_dim,
         in_dim=model_config.in_dim,
         out_dim=model_config.out_dim,
-        size=config.task.nx,
+        size=size,
         N_layers=model_config.n_layers,
         N_res=model_config.n_res,
         N_res_neck=model_config.n_res_neck,

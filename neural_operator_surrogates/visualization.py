@@ -12,6 +12,9 @@ def get_input_label(config: ExperimentConfig) -> str:
     if config.task.name == "poisson_gradient":
         return r"$q(x)$"
 
+    if config.task.name == "hereditary_integral":
+        return r"$\varepsilon(t)$"
+
     return r"$u(x)$"
 
 
@@ -28,6 +31,9 @@ def get_output_label(config: ExperimentConfig) -> str:
     if config.task.name == "second_derivative":
         return r"$u_{xx}(x)$"
 
+    if config.task.name == "hereditary_integral":
+        return r"$\mathcal{M}[\varepsilon](t)$"
+
     return r"$\mathcal{N}[u](x)$"
 
 
@@ -43,6 +49,9 @@ def get_output_title(config: ExperimentConfig) -> str:
 
     if config.task.name == "second_derivative":
         return "Second derivative"
+
+    if config.task.name == "hereditary_integral":
+        return "Hereditary integral operator"
 
     return "Operator output"
 
@@ -97,6 +106,7 @@ def save_prediction_figures(
     input_label = get_input_label(config)
     output_label = get_output_label(config)
     output_title = get_output_title(config)
+    x_axis_label = r"$t$" if config.task.name == "hereditary_integral" else r"$x$"
 
     xb, yb = next(iter(test_loader))
 
@@ -129,7 +139,7 @@ def save_prediction_figures(
         axes[1].legend()
 
         axes[2].plot(x, y_pred[i, :, 0] - y_true[i, :, 0])
-        axes[2].set_xlabel(r"$x$")
+        axes[2].set_xlabel(x_axis_label)
         axes[2].set_ylabel("error")
         axes[2].set_title("Prediction error")
 
