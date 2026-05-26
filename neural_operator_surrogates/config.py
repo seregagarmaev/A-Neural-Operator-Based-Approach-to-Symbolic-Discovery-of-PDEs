@@ -77,7 +77,7 @@ class CNOConfig:
 class TrainingConfig:
     device: str = "cuda:0"
 
-    max_epochs: int = 10 #1000
+    max_epochs: int = 1000
     learning_rate: float = 1e-3
     weight_decay: float = 1e-6
 
