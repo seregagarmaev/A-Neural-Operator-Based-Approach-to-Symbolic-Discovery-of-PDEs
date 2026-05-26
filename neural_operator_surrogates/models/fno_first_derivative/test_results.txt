@@ -1,0 +1,6 @@
+experiment_name: fno_first_derivative
+task: first_derivative
+model: fno
+
+test_mse_normalized: 4.120056217971e-06
+test_rel_l2_normalized: 1.838996729930e-03

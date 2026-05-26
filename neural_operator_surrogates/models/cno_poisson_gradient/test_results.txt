@@ -1,0 +1,6 @@
+experiment_name: cno_poisson_gradient
+task: poisson_gradient
+model: cno
+
+test_mse_normalized: 3.166862279613e-04
+test_rel_l2_normalized: 1.854392141104e-02

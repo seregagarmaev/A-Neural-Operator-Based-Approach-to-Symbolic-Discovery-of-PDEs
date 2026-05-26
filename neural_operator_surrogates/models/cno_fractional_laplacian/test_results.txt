@@ -1,0 +1,6 @@
+experiment_name: cno_fractional_laplacian
+task: fractional_laplacian
+model: cno
+
+test_mse_normalized: 6.539352471009e-04
+test_rel_l2_normalized: 2.136531961150e-02

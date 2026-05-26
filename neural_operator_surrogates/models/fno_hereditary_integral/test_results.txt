@@ -1,0 +1,6 @@
+experiment_name: fno_hereditary_integral
+task: hereditary_integral
+model: fno
+
+test_mse_normalized: 1.668259062626e-05
+test_rel_l2_normalized: 3.851879562717e-03

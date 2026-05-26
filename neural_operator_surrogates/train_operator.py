@@ -10,6 +10,21 @@ from trainer import evaluate, train_model
 from visualization import save_prediction_figures, save_training_curves
 
 
+def save_test_results(
+    results_path,
+    config: ExperimentConfig,
+    test_mse: float,
+    test_rel_l2: float,
+) -> None:
+    with open(results_path, "w") as f:
+        f.write(f"experiment_name: {config.experiment_name}\n")
+        f.write(f"task: {config.task.name}\n")
+        f.write(f"model: {config.model.name}\n")
+        f.write("\n")
+        f.write(f"test_mse_normalized: {test_mse:.12e}\n")
+        f.write(f"test_rel_l2_normalized: {test_rel_l2:.12e}\n")
+
+
 def run_experiment(config: ExperimentConfig) -> None:
     print("=" * 80)
     print(f"Running experiment: {config.experiment_name}")
@@ -65,9 +80,19 @@ def run_experiment(config: ExperimentConfig) -> None:
         device=device,
     )
 
+    results_path = experiment_models_dir / "test_results.txt"
+
+    save_test_results(
+        results_path=results_path,
+        config=config,
+        test_mse=test_mse,
+        test_rel_l2=test_rel_l2,
+    )
+
     print(f"Best model saved to: {best_model_path}")
-    print(f"Test MSE: {test_mse:.6e}")
-    print(f"Test relative L2: {test_rel_l2:.6e}")
+    print(f"Test normalized MSE: {test_mse:.6e}")
+    print(f"Test normalized relative L2: {test_rel_l2:.6e}")
+    print(f"Test results saved to: {results_path}")
 
     save_training_curves(
         history=history,

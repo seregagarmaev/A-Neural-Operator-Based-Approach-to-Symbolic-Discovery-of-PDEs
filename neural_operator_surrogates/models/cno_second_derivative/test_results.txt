@@ -1,0 +1,6 @@
+experiment_name: cno_second_derivative
+task: second_derivative
+model: cno
+
+test_mse_normalized: 8.011134996195e-04
+test_rel_l2_normalized: 2.484291302972e-02
