@@ -1,0 +1,6 @@
+experiment_name: fnn_first_derivative
+task: first_derivative
+model: fnn
+
+test_mse_normalized: 6.667070556432e-04
+test_rel_l2_normalized: 2.133060758933e-02

@@ -3,7 +3,7 @@ import gc
 import numpy as np
 import torch
 
-from config import ExperimentConfig, get_experiments
+from config import ExperimentConfig, FNNConfig, OperatorTaskConfig
 from neural_operators import build_neural_operator
 from operator_datasets import build_operator_dataset
 from trainer import evaluate, train_model
@@ -124,7 +124,22 @@ def run_experiment(config: ExperimentConfig) -> None:
 
 
 def main() -> None:
-    experiments = get_experiments()
+    task_names = [
+        "fractional_laplacian",
+        "poisson_gradient",
+        "first_derivative",
+        "second_derivative",
+        "hereditary_integral",
+    ]
+
+    experiments = [
+        ExperimentConfig(
+            experiment_name=f"fnn_{task_name}",
+            task=OperatorTaskConfig(name=task_name),
+            model=FNNConfig(),
+        )
+        for task_name in task_names
+    ]
 
     for config in experiments:
         run_experiment(config)

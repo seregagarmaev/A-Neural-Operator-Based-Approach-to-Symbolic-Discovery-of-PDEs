@@ -6,6 +6,7 @@ import torch
 from config import (
     CNOConfig,
     ExperimentConfig,
+    FNNConfig,
     FNOConfig,
     OperatorTaskConfig,
 )
@@ -14,6 +15,33 @@ from operator_datasets import build_operator_dataset
 from trainer import evaluate, train_model
 from visualization import save_prediction_figures, save_training_curves
 
+
+# def make_integral_operator_experiments() -> list[ExperimentConfig]:
+#     task = OperatorTaskConfig(
+#         name="hereditary_integral",
+#         t_final=1.0,
+#         nt=256,
+#         memory_amplitude_A=0.5,
+#         relaxation_time_tau=0.1,
+#     )
+
+#     return [
+#         ExperimentConfig(
+#             experiment_name="fno_hereditary_integral",
+#             task=task,
+#             model=FNOConfig(),
+#         ),
+#         ExperimentConfig(
+#             experiment_name="cno_hereditary_integral",
+#             task=task,
+#             model=CNOConfig(),
+#         ),
+#         ExperimentConfig(
+#             experiment_name="fnn_hereditary_integral",
+#             task=task,
+#             model=FNNConfig(),
+#         ),
+#     ]
 
 def make_integral_operator_experiments() -> list[ExperimentConfig]:
     task = OperatorTaskConfig(
@@ -26,14 +54,9 @@ def make_integral_operator_experiments() -> list[ExperimentConfig]:
 
     return [
         ExperimentConfig(
-            experiment_name="fno_hereditary_integral",
+            experiment_name="fnn_hereditary_integral",
             task=task,
-            model=FNOConfig(),
-        ),
-        ExperimentConfig(
-            experiment_name="cno_hereditary_integral",
-            task=task,
-            model=CNOConfig(),
+            model=FNNConfig(),
         ),
     ]
 

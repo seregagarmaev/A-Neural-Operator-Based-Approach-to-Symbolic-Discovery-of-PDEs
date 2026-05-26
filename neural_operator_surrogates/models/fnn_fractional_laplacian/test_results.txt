@@ -1,0 +1,6 @@
+experiment_name: fnn_fractional_laplacian
+task: fractional_laplacian
+model: fnn
+
+test_mse_normalized: 2.132967318175e-03
+test_rel_l2_normalized: 3.518656548113e-02
