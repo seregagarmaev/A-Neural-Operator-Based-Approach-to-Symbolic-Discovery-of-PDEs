@@ -247,6 +247,17 @@ class NOMTO(nn.Module):
             weight_scale=self.weight_scale,
         )
 
+        self.freeze_neural_operators()
+
+    def freeze_neural_operators(self) -> None:
+        for layer in self.symbolic_layers:
+            for op in layer.operations:
+                if hasattr(op, "model"):
+                    op.model.eval()
+
+                    for p in op.model.parameters():
+                        p.requires_grad_(False)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x0 = x
         h = self.symbolic_layers[0](x0)
