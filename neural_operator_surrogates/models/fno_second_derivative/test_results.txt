@@ -2,5 +2,5 @@ experiment_name: fno_second_derivative
 task: second_derivative
 model: fno
 
-test_mse_normalized: 1.733921453706e-04
-test_rel_l2_normalized: 1.283295010217e-02
+test_mse_normalized: 1.760106242727e-04
+test_rel_l2_normalized: 1.229526684619e-02

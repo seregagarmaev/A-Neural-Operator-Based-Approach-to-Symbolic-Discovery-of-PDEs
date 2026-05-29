@@ -2,5 +2,5 @@ experiment_name: cno_hereditary_integral
 task: hereditary_integral
 model: cno
 
-test_mse_normalized: 1.362843772768e-05
-test_rel_l2_normalized: 4.052397562191e-03
+test_mse_normalized: 1.312638573836e-05
+test_rel_l2_normalized: 3.833873051917e-03

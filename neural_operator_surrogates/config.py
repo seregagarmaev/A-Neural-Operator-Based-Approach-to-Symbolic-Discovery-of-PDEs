@@ -27,7 +27,7 @@ class OperatorTaskConfig:
     # Fractional Laplacian parameter
     frac_power_s: float = 0.7
 
-    # Gaussian-mixture input generation
+    # Spatial Gaussian-mixture input generation
     n_gaussians_min: int = 20
     n_gaussians_max: int = 30
     sigma_min_fraction: float = 0.04
@@ -39,18 +39,14 @@ class OperatorTaskConfig:
     # Hereditary viscoelastic integral task
     t_final: float = 1.0
     nt: int = 256
-    memory_amplitude_A: float = 0.5
     relaxation_time_tau: float = 0.1
 
-    n_modes_min: int = 3
-    n_modes_max: int = 8
-    frequency_min: int = 1
-    frequency_max: int = 8
-
-    n_pulses_min: int = 1
-    n_pulses_max: int = 4
-    pulse_width_min: float = 0.03
-    pulse_width_max: float = 0.15
+    # Temporal Gaussian-mixture strain-history generation
+    strain_gaussians_min: int = 20
+    strain_gaussians_max: int = 30
+    strain_sigma_min_fraction: float = 0.03
+    strain_sigma_max_fraction: float = 0.15
+    strain_max_abs: float = 1.0
 
 
 @dataclass

@@ -38,9 +38,7 @@ def generate_periodic_gaussian_mixture(
         size=n_gaussians,
     )
 
-    amplitudes = rng.uniform(
-        -1.0,
-        1.0,
+    amplitudes = rng.normal(
         size=n_gaussians,
     )
 
@@ -128,10 +126,95 @@ def poisson_gradient_periodic(
     nonzero = wave_numbers != 0.0
     phi_hat[:, nonzero] = source_hat[:, nonzero] / (wave_numbers[nonzero] ** 2)
 
-    # E = -phi_x
     y = np.fft.ifft(-1j * wave_numbers[None, :] * phi_hat, axis=-1).real
 
     return y.astype(np.float32)
+
+
+def generate_temporal_gaussian_strain_history(
+    t: np.ndarray,
+    config: ExperimentConfig,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    task = config.task
+
+    T = task.t_final
+
+    n_gaussians = rng.integers(
+        task.strain_gaussians_min,
+        task.strain_gaussians_max + 1,
+    )
+
+    sigma_min = task.strain_sigma_min_fraction * T
+    sigma_max = task.strain_sigma_max_fraction * T
+
+    epsilon = np.zeros_like(t, dtype=np.float64)
+
+    for _ in range(n_gaussians):
+        amplitude = rng.normal()
+        center = rng.uniform(0.0, T)
+        sigma = rng.uniform(sigma_min, sigma_max)
+
+        epsilon += amplitude * np.exp(
+            -((t - center) ** 2) / (2.0 * sigma ** 2)
+        )
+
+    epsilon = epsilon - np.mean(epsilon)
+    epsilon = task.strain_max_abs * epsilon / np.max(np.abs(epsilon))
+
+    return epsilon.astype(np.float32)
+
+
+def hereditary_integral_operator(
+    epsilon: np.ndarray,
+    config: ExperimentConfig,
+) -> np.ndarray:
+    task = config.task
+
+    dt = task.t_final / (task.nt - 1)
+    tau = task.relaxation_time_tau
+    alpha = np.exp(-dt / tau)
+
+    weight_left = tau**2 / dt * (1.0 - alpha) - tau * alpha
+    weight_right = tau - tau**2 / dt * (1.0 - alpha)
+
+    memory = np.zeros_like(epsilon, dtype=np.float32)
+
+    for i in range(1, task.nt):
+        memory[:, i] = (
+            alpha * memory[:, i - 1]
+            + weight_left * epsilon[:, i - 1]
+            + weight_right * epsilon[:, i]
+        )
+
+    return memory.astype(np.float32)
+
+
+def generate_hereditary_integral_inputs(
+    n_samples: int,
+    config: ExperimentConfig,
+    rng: np.random.Generator,
+) -> tuple[np.ndarray, np.ndarray]:
+    task = config.task
+
+    t = np.linspace(
+        0.0,
+        task.t_final,
+        task.nt,
+        endpoint=True,
+        dtype=np.float32,
+    )
+
+    epsilon_all = np.empty((n_samples, task.nt), dtype=np.float32)
+
+    for i in range(n_samples):
+        epsilon_all[i] = generate_temporal_gaussian_strain_history(
+            t=t,
+            config=config,
+            rng=rng,
+        )
+
+    return t, epsilon_all.astype(np.float32)
 
 
 def generate_operator_inputs(
@@ -303,138 +386,3 @@ def build_operator_dataset(config: ExperimentConfig):
     }
 
     return train_loader, val_loader, test_loader, dataset_info
-
-
-
-def generate_smooth_strain_history(
-    t: np.ndarray,
-    config: ExperimentConfig,
-    rng: np.random.Generator,
-) -> np.ndarray:
-    task = config.task
-
-    n_modes = rng.integers(
-        task.n_modes_min,
-        task.n_modes_max + 1,
-    )
-
-    frequencies = rng.integers(
-        task.frequency_min,
-        task.frequency_max + 1,
-        size=n_modes,
-    )
-
-    sine_amplitudes = rng.uniform(
-        -1.0,
-        1.0,
-        size=n_modes,
-    )
-
-    cosine_amplitudes = rng.uniform(
-        -1.0,
-        1.0,
-        size=n_modes,
-    )
-
-    phases = rng.uniform(
-        0.0,
-        2.0 * np.pi,
-        size=n_modes,
-    )
-
-    eps = np.zeros_like(t, dtype=np.float64)
-
-    for j in range(n_modes):
-        omega = 2.0 * np.pi * frequencies[j] / task.t_final
-        eps += sine_amplitudes[j] * np.sin(omega * t + phases[j])
-        eps += cosine_amplitudes[j] * np.cos(omega * t + phases[j])
-
-    n_pulses = rng.integers(
-        task.n_pulses_min,
-        task.n_pulses_max + 1,
-    )
-
-    pulse_centers = rng.uniform(
-        0.0,
-        task.t_final,
-        size=n_pulses,
-    )
-
-    pulse_widths = rng.uniform(
-        task.pulse_width_min,
-        task.pulse_width_max,
-        size=n_pulses,
-    )
-
-    pulse_amplitudes = rng.uniform(
-        -1.0,
-        1.0,
-        size=n_pulses,
-    )
-
-    for j in range(n_pulses):
-        eps += pulse_amplitudes[j] * np.exp(
-            -((t - pulse_centers[j]) ** 2) / (2.0 * pulse_widths[j] ** 2)
-        )
-
-    eps = eps - np.mean(eps)
-    eps = eps / np.max(np.abs(eps))
-
-    return eps.astype(np.float32)
-
-
-def hereditary_integral_operator(
-    epsilon: np.ndarray,
-    config: ExperimentConfig,
-) -> np.ndarray:
-    task = config.task
-
-    dt = task.t_final / (task.nt - 1)
-    alpha = np.exp(-dt / task.relaxation_time_tau)
-
-    tau = task.relaxation_time_tau
-    A = task.memory_amplitude_A
-
-    j0 = tau * (1.0 - alpha)
-    j1 = dt * tau - tau**2 * (1.0 - alpha)
-
-    weight_left = A * (j0 - j1 / dt)
-    weight_right = A * (j1 / dt)
-
-    memory = np.zeros_like(epsilon, dtype=np.float32)
-
-    for i in range(1, task.nt):
-        memory[:, i] = (
-            alpha * memory[:, i - 1]
-            + weight_left * epsilon[:, i - 1]
-            + weight_right * epsilon[:, i]
-        )
-
-    return memory.astype(np.float32)
-
-
-def generate_hereditary_integral_inputs(
-    n_samples: int,
-    config: ExperimentConfig,
-    rng: np.random.Generator,
-) -> tuple[np.ndarray, np.ndarray]:
-    task = config.task
-
-    t = np.linspace(
-        0.0,
-        task.t_final,
-        task.nt,
-        endpoint=True,
-        dtype=np.float32,
-    )
-
-    epsilon_all = np.empty((n_samples, task.nt), dtype=np.float32)
-
-    for i in range(n_samples):
-        epsilon_all[i] = generate_smooth_strain_history(
-            t=t,
-            config=config,
-            rng=rng,
-        )
-
-    return t, epsilon_all.astype(np.float32)
