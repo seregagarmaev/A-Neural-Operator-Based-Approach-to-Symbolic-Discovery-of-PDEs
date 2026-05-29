@@ -2,5 +2,5 @@ experiment_name: cno_first_derivative
 task: first_derivative
 model: cno
 
-test_mse_normalized: 8.557722867408e-05
-test_rel_l2_normalized: 7.777815335430e-03
+test_mse_raw: 4.338739449850e-05
+test_rel_l2_raw: 6.248422956560e-03

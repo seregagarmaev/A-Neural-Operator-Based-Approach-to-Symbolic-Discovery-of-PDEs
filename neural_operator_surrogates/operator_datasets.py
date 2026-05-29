@@ -336,26 +336,19 @@ def build_operator_dataset(config: ExperimentConfig):
         rng=rng,
     )
 
-    y_mean = y_train.mean()
-    y_std = y_train.std()
-
-    y_train_normalized = (y_train - y_mean) / y_std
-    y_val_normalized = (y_val - y_mean) / y_std
-    y_test_normalized = (y_test - y_mean) / y_std
-
     train_dataset = TensorDataset(
         torch.tensor(u_train[..., None], dtype=torch.float32),
-        torch.tensor(y_train_normalized[..., None], dtype=torch.float32),
+        torch.tensor(y_train[..., None], dtype=torch.float32),
     )
 
     val_dataset = TensorDataset(
         torch.tensor(u_val[..., None], dtype=torch.float32),
-        torch.tensor(y_val_normalized[..., None], dtype=torch.float32),
+        torch.tensor(y_val[..., None], dtype=torch.float32),
     )
 
     test_dataset = TensorDataset(
         torch.tensor(u_test[..., None], dtype=torch.float32),
-        torch.tensor(y_test_normalized[..., None], dtype=torch.float32),
+        torch.tensor(y_test[..., None], dtype=torch.float32),
     )
 
     train_loader = DataLoader(
@@ -381,8 +374,8 @@ def build_operator_dataset(config: ExperimentConfig):
 
     dataset_info = {
         "x": x,
-        "y_mean": float(y_mean),
-        "y_std": float(y_std),
+        "y_mean": 0.0,
+        "y_std": 1.0,
     }
 
     return train_loader, val_loader, test_loader, dataset_info

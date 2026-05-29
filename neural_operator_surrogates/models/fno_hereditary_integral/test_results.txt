@@ -2,5 +2,5 @@ experiment_name: fno_hereditary_integral
 task: hereditary_integral
 model: fno
 
-test_mse_normalized: 1.249639331036e-05
-test_rel_l2_normalized: 3.712461126270e-03
+test_mse_raw: 5.616855332846e-06
+test_rel_l2_raw: 6.295183952898e-02

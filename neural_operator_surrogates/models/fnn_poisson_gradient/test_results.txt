@@ -2,5 +2,5 @@ experiment_name: fnn_poisson_gradient
 task: poisson_gradient
 model: fnn
 
-test_mse_normalized: 3.025511192391e-03
-test_rel_l2_normalized: 5.594667652622e-02
+test_mse_raw: 1.422651303074e-05
+test_rel_l2_raw: 1.826080363244e-01

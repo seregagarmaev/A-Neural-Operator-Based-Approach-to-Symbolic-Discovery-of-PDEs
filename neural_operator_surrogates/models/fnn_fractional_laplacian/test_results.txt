@@ -2,5 +2,5 @@ experiment_name: fnn_fractional_laplacian
 task: fractional_laplacian
 model: fnn
 
-test_mse_normalized: 2.313253280590e-03
-test_rel_l2_normalized: 3.591877873987e-02
+test_mse_raw: 4.974428127753e-03
+test_rel_l2_raw: 3.750734915957e-02

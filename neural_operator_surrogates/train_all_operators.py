@@ -69,8 +69,8 @@ def save_test_results(
         f.write(f"task: {config.task.name}\n")
         f.write(f"model: {config.model.name}\n")
         f.write("\n")
-        f.write(f"test_mse_normalized: {test_mse:.12e}\n")
-        f.write(f"test_rel_l2_normalized: {test_rel_l2:.12e}\n")
+        f.write(f"test_mse_raw: {test_mse:.12e}\n")
+        f.write(f"test_rel_l2_raw: {test_rel_l2:.12e}\n")
 
 
 def run_experiment(config: ExperimentConfig) -> None:
