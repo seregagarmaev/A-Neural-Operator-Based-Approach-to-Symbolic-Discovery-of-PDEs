@@ -50,15 +50,20 @@ class NeuralOperatorOperation(nn.Module):
 
     def forward(self, *args: torch.Tensor) -> torch.Tensor:
         x = torch.stack(args, dim=-1)
-
-        y = self.model(x)
-
+    
+        scale = x.abs().amax(dim=tuple(range(1, x.ndim)), keepdim=True)
+        x_normalized = x / scale
+    
+        y = self.model(x_normalized)
+    
         if isinstance(y, tuple):
             y = y[0]
-
+    
+        y = y * scale
+    
         if y.ndim >= 3 and y.shape[-1] == 1:
             y = y[..., 0]
-
+    
         return y
 
     def symbolic(self, *args: sp.Expr) -> sp.Expr:
